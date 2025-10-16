@@ -60,3 +60,4 @@ Desktop.ini
 
 # --- Optional: if using ESLint or Prettier ---
 /.eslintcache
+.env
