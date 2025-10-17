@@ -55,9 +55,7 @@ export const searchNearbyPlaces = async (
     };
 
     params.latitude = parseFloat(params.latitude.toString().replace(",", "."));
-    params.longitude = parseFloat(
-      params.longitude.toString().replace(",", ".")
-    );
+    params.longitude = parseFloat(params.longitude.toString().replace(",", "."));
 
     if (type) {
       params.type = type;
