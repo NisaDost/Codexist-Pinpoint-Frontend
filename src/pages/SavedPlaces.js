@@ -96,6 +96,11 @@ const SavedPlaces = () => {
                   <strong>Original Name:</strong> {place.placeName}
                 </p>
               )}
+              {place.type && place.type.trim() !== "" && (
+                <p>
+                  <strong>Type:</strong> {place.type}
+                </p>
+              )}
               <p>
                 <strong>Address:</strong> {place.address || "N/A"}
               </p>

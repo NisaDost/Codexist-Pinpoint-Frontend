@@ -9,7 +9,6 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -18,7 +17,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Auth APIs
 export const loginUser = async (username, password) => {
   try {
     const response = await api.post("/api/auth/login", { username, password });
@@ -43,7 +41,6 @@ export const registerUser = async (username, email, password) => {
   }
 };
 
-// Places APIs
 export const searchNearbyPlaces = async (
   latitude,
   longitude,
@@ -56,6 +53,11 @@ export const searchNearbyPlaces = async (
       longitude,
       radius,
     };
+
+    params.latitude = parseFloat(params.latitude.toString().replace(",", "."));
+    params.longitude = parseFloat(
+      params.longitude.toString().replace(",", ".")
+    );
 
     if (type) {
       params.type = type;

@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 
-const PlacesList = ({ places, onSavePlace }) => {
+const PlacesList = ({ places, selectedType, onSavePlace }) => {
   const { user } = useAuth();
 
   if (!places || places.length === 0) {
@@ -29,7 +29,7 @@ const PlacesList = ({ places, onSavePlace }) => {
           )}
           {place.types && place.types.length > 0 && (
             <p>
-              <strong>Type:</strong> {place.types[0].replace(/_/g, " ")}
+              <strong>Type:</strong> {selectedType}
             </p>
           )}
           <p>
@@ -37,7 +37,10 @@ const PlacesList = ({ places, onSavePlace }) => {
             {place.geometry.location.lng.toFixed(6)}
           </p>
           {user && (
-            <button className="save-button" onClick={() => onSavePlace(place)}>
+            <button
+              className="save-button"
+              onClick={() => onSavePlace(place, selectedType)}
+            >
               Save Place
             </button>
           )}

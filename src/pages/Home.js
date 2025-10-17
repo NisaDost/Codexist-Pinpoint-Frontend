@@ -41,7 +41,7 @@ const Home = () => {
   const handleSearch = async () => {
     setLoading(true);
     try {
-      const data = await searchNearbyPlaces(longitude, latitude, radius, type);
+      const data = await searchNearbyPlaces(latitude, longitude, radius, type);
       setPlaces(data.results || data || []);
     } catch (error) {
       if (error.request) {
@@ -62,7 +62,7 @@ const Home = () => {
     setLongitude(e.latLng.lng().toString());
   };
 
-  const handleSavePlace = async (place) => {
+  const handleSavePlace = async (place, selectedType) => {
     if (!user) {
       alert("Please create an account to save places.");
       return;
@@ -74,8 +74,9 @@ const Home = () => {
         placeName: place.name,
         latitude: place.geometry.location.lat,
         longitude: place.geometry.location.lng,
+        type: selectedType,
         address: place.vicinity || place.formatted_address || "",
-        customName: place.name, 
+        customName: place.name,
       };
 
       await savePlace(placeData);
@@ -104,7 +105,11 @@ const Home = () => {
           onSearch={handleSearch}
           loading={loading}
         />
-        <PlacesList places={places} onSavePlace={handleSavePlace} />
+        <PlacesList
+          places={places}
+          selectedType={type}
+          onSavePlace={handleSavePlace}
+        />
       </div>
       <div className="map-container">
         <Map center={center} onMapClick={handleMapClick} places={places} />
