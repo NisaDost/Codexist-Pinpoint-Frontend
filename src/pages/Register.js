@@ -17,7 +17,7 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
-    if (!username || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
       return;
     }
@@ -37,8 +37,7 @@ const Register = () => {
     try {
       const response = await registerUser(username, email, password);
 
-      // Adjust based on your backend response structure
-      const userData = response.user || { username };
+      const userData = response.user || { username, email };
       const token = response.token || response.accessToken;
 
       register(userData, token);
@@ -74,16 +73,6 @@ const Register = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
-            disabled={loading}
-          />
-        </div>
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Choose a username"
             disabled={loading}
           />
         </div>

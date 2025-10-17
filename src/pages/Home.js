@@ -69,7 +69,16 @@ const Home = () => {
     }
 
     try {
-      await savePlace(place);
+      const placeData = {
+        placeId: place.place_id,
+        placeName: place.name,
+        latitude: place.geometry.location.lat,
+        longitude: place.geometry.location.lng,
+        address: place.vicinity || place.formatted_address || "",
+        customName: place.name, 
+      };
+
+      await savePlace(placeData);
       alert(`${place.name} saved successfully!`);
     } catch (error) {
       if (error.response) {

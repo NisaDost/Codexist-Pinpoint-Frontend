@@ -43,9 +43,7 @@ const SavedPlaces = () => {
     if (window.confirm("Are you sure you want to delete this place?")) {
       try {
         await deletePlace(id);
-        setSavedPlaces(
-          savedPlaces.filter((place) => place.id !== id && place._id !== id)
-        );
+        setSavedPlaces(savedPlaces.filter((place) => place.id !== id));
         alert("Place deleted successfully!");
       } catch (error) {
         if (error.request) {
@@ -91,38 +89,27 @@ const SavedPlaces = () => {
       ) : (
         <div className="saved-places-grid">
           {savedPlaces.map((place) => (
-            <div
-              key={place.id || place._id || place.place_id}
-              className="saved-place-card"
-            >
-              <h3>{place.name}</h3>
+            <div key={place.id} className="saved-place-card">
+              <h3>{place.customName || place.placeName}</h3>
+              {place.placeName && place.customName !== place.placeName && (
+                <p>
+                  <strong>Original Name:</strong> {place.placeName}
+                </p>
+              )}
               <p>
-                <strong>Address:</strong>{" "}
-                {place.vicinity ||
-                  place.formatted_address ||
-                  place.address ||
-                  "N/A"}
+                <strong>Address:</strong> {place.address || "N/A"}
               </p>
-              {place.rating && (
-                <p>
-                  <strong>Rating:</strong> {place.rating} / 5
-                </p>
-              )}
-              {place.types && place.types.length > 0 && (
-                <p>
-                  <strong>Type:</strong> {place.types[0].replace(/_/g, " ")}
-                </p>
-              )}
-              {place.geometry && place.geometry.location && (
-                <p>
-                  <strong>Location:</strong>{" "}
-                  {place.geometry.location.lat.toFixed(6)},{" "}
-                  {place.geometry.location.lng.toFixed(6)}
-                </p>
-              )}
+              <p>
+                <strong>Location:</strong> {place.latitude?.toFixed(6)},{" "}
+                {place.longitude?.toFixed(6)}
+              </p>
+              <p>
+                <strong>Saved:</strong>{" "}
+                {new Date(place.createdAt).toLocaleDateString()}
+              </p>
               <button
                 className="delete-button"
-                onClick={() => handleDelete(place.id || place._id)}
+                onClick={() => handleDelete(place.id)}
               >
                 Delete
               </button>

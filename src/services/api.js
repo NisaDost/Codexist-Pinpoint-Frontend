@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  process.env.REACT_APP_BACKEND_URL;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -46,15 +45,15 @@ export const registerUser = async (username, email, password) => {
 
 // Places APIs
 export const searchNearbyPlaces = async (
-  longitude,
   latitude,
+  longitude,
   radius,
   type = ""
 ) => {
   try {
     const params = {
-      longitude,
       latitude,
+      longitude,
       radius,
     };
 
@@ -70,7 +69,6 @@ export const searchNearbyPlaces = async (
   }
 };
 
-// Saved Places APIs
 export const getSavedPlaces = async () => {
   try {
     const response = await api.get("/api/saved-places");
