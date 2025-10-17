@@ -42,11 +42,15 @@ const Home = () => {
     setLoading(true);
     try {
       const data = await searchNearbyPlaces(longitude, latitude, radius, type);
-      setPlaces(data.results || []);
+      setPlaces(data.results || data || []);
     } catch (error) {
-      alert(
-        "Error searching places. Make sure your backend is running on port 8070."
-      );
+      if (error.request) {
+        alert(
+          "Cannot connect to backend. Make sure your server is running on port 8070."
+        );
+      } else {
+        alert("Error searching places. Please try again.");
+      }
       console.error(error);
     } finally {
       setLoading(false);
@@ -58,17 +62,23 @@ const Home = () => {
     setLongitude(e.latLng.lng().toString());
   };
 
-  const handleSavePlace = (place) => {
+  const handleSavePlace = async (place) => {
     if (!user) {
       alert("Please create an account to save places.");
       return;
     }
 
     try {
-      savePlace(user.id, place);
+      await savePlace(place);
       alert(`${place.name} saved successfully!`);
     } catch (error) {
-      alert("Error saving place.");
+      if (error.response) {
+        alert(error.response.data.message || "Error saving place.");
+      } else if (error.request) {
+        alert("Cannot connect to backend. Make sure your server is running.");
+      } else {
+        alert("Error saving place. Please try again.");
+      }
       console.error(error);
     }
   };

@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { loginUser } from "../services/api";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -18,16 +20,32 @@ const Login = () => {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(
-      (u) => u.username === username && u.password === password
-    );
+    setLoading(true);
 
-    if (user) {
-      login({ id: user.id, username: user.username });
+    try {
+      const response = await loginUser(username, password);
+
+      // Adjust based on your backend response structure
+      const userData = response.user || { username };
+      const token = response.token || response.accessToken;
+
+      login(userData, token);
       navigate("/");
-    } else {
-      setError("Invalid username or password.");
+    } catch (error) {
+      if (error.response) {
+        setError(
+          error.response.data.message || "Invalid username or password."
+        );
+      } else if (error.request) {
+        setError(
+          "Cannot connect to server. Make sure backend is running on port 8070."
+        );
+      } else {
+        setError("An error occurred. Please try again.");
+      }
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +61,7 @@ const Login = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter your username"
+            disabled={loading}
           />
         </div>
         <div className="form-group">
@@ -52,10 +71,11 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
+            disabled={loading}
           />
         </div>
-        <button type="submit" className="auth-button">
-          Login
+        <button type="submit" className="auth-button" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
       <div className="auth-link">

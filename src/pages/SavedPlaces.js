@@ -7,6 +7,8 @@ const SavedPlaces = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [savedPlaces, setSavedPlaces] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -14,19 +16,68 @@ const SavedPlaces = () => {
       return;
     }
 
-    const places = getSavedPlaces(user.id);
-    setSavedPlaces(places);
+    fetchSavedPlaces();
   }, [user, navigate]);
 
-  const handleDelete = (placeId) => {
+  const fetchSavedPlaces = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await getSavedPlaces();
+      setSavedPlaces(data || []);
+    } catch (error) {
+      if (error.request) {
+        setError(
+          "Cannot connect to backend. Make sure your server is running on port 8070."
+        );
+      } else {
+        setError("Error loading saved places.");
+      }
+      console.error("Error fetching saved places:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this place?")) {
-      const updatedPlaces = deletePlace(user.id, placeId);
-      setSavedPlaces(updatedPlaces);
+      try {
+        await deletePlace(id);
+        setSavedPlaces(
+          savedPlaces.filter((place) => place.id !== id && place._id !== id)
+        );
+        alert("Place deleted successfully!");
+      } catch (error) {
+        if (error.request) {
+          alert("Cannot connect to backend. Make sure your server is running.");
+        } else {
+          alert("Error deleting place. Please try again.");
+        }
+        console.error("Error deleting place:", error);
+      }
     }
   };
 
   if (!user) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="saved-places-container">
+        <h2>My Saved Places</h2>
+        <div className="no-results">Loading saved places...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="saved-places-container">
+        <h2>My Saved Places</h2>
+        <div className="error-message">{error}</div>
+      </div>
+    );
   }
 
   return (
@@ -40,11 +91,17 @@ const SavedPlaces = () => {
       ) : (
         <div className="saved-places-grid">
           {savedPlaces.map((place) => (
-            <div key={place.place_id} className="saved-place-card">
+            <div
+              key={place.id || place._id || place.place_id}
+              className="saved-place-card"
+            >
               <h3>{place.name}</h3>
               <p>
                 <strong>Address:</strong>{" "}
-                {place.vicinity || place.formatted_address || "N/A"}
+                {place.vicinity ||
+                  place.formatted_address ||
+                  place.address ||
+                  "N/A"}
               </p>
               {place.rating && (
                 <p>
@@ -56,14 +113,16 @@ const SavedPlaces = () => {
                   <strong>Type:</strong> {place.types[0].replace(/_/g, " ")}
                 </p>
               )}
-              <p>
-                <strong>Location:</strong>{" "}
-                {place.geometry.location.lat.toFixed(6)},{" "}
-                {place.geometry.location.lng.toFixed(6)}
-              </p>
+              {place.geometry && place.geometry.location && (
+                <p>
+                  <strong>Location:</strong>{" "}
+                  {place.geometry.location.lat.toFixed(6)},{" "}
+                  {place.geometry.location.lng.toFixed(6)}
+                </p>
+              )}
               <button
                 className="delete-button"
-                onClick={() => handleDelete(place.place_id)}
+                onClick={() => handleDelete(place.id || place._id)}
               >
                 Delete
               </button>
