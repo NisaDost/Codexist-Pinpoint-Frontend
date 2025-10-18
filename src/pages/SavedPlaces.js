@@ -27,33 +27,51 @@ const SavedPlaces = () => {
     try {
       const data = await getSavedPlaces();
       setSavedPlaces(data || []);
-    } catch (error) {
-      if (error.request) {
+    } catch (errorInfo) {
+      if (errorInfo.status === 401) {
+        setError("Your session has expired. Please log in again.");
+        setTimeout(() => navigate("/login"), 2000);
+      } else if (errorInfo.status === 0) {
         setError(
           "Cannot connect to backend. Make sure your server is running on port 8070."
         );
       } else {
-        setError("Error loading saved places.");
+        setError(errorInfo.message || "Failed to load saved places.");
       }
-      console.error("Error fetching saved places:", error);
+      console.error("Fetch saved places error:", errorInfo);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this place?")) {
+  const handleDelete = async (id, placeName) => {
+    if (window.confirm(`Are you sure you want to delete ${placeName}?`)) {
       try {
         await deletePlace(id);
         setSavedPlaces(savedPlaces.filter((place) => place.id !== id));
-        alert("Place deleted successfully!");
-      } catch (error) {
-        if (error.request) {
-          alert("Cannot connect to backend. Make sure your server is running.");
+        alert(`Success!\n\n${placeName} has been deleted.`);
+      } catch (errorInfo) {
+        if (errorInfo.status === 404) {
+          alert(`Not Found\n\n${errorInfo.message}`);
+          // Refresh the list in case it was already deleted
+          fetchSavedPlaces();
+        } else if (errorInfo.status === 401) {
+          alert(
+            "Authentication Required\n\nYour session has expired. Please log in again."
+          );
+          navigate("/login");
+        } else if (errorInfo.status === 0) {
+          alert(
+            "Connection Error\n\nCannot connect to backend. Make sure your server is running."
+          );
         } else {
-          alert("Error deleting place. Please try again.");
+          alert(
+            `Error\n\n${
+              errorInfo.message || "Failed to delete place. Please try again."
+            }`
+          );
         }
-        console.error("Error deleting place:", error);
+        console.error("Delete error:", errorInfo);
       }
     }
   };
@@ -85,6 +103,13 @@ const SavedPlaces = () => {
       <div className="saved-places-container">
         <h2>My Saved Places</h2>
         <div className="error-message">{error}</div>
+        <button
+          className="search-button"
+          onClick={fetchSavedPlaces}
+          style={{ marginTop: "1rem" }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -125,7 +150,9 @@ const SavedPlaces = () => {
               </p>
               <button
                 className="delete-button"
-                onClick={() => handleDelete(place.id)}
+                onClick={() =>
+                  handleDelete(place.id, place.customName || place.placeName)
+                }
               >
                 Delete
               </button>

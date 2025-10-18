@@ -1,4 +1,5 @@
 import axios from "axios";
+import { handleApiError, logError } from "../utils/errorHandler";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -17,13 +18,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add response interceptor for consistent error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    logError(error, error.config?.url);
+    return Promise.reject(error);
+  }
+);
+
 export const loginUser = async (username, password) => {
   try {
     const response = await api.post("/api/auth/login", { username, password });
     return response.data;
   } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+    throw handleApiError(error, "Login failed");
   }
 };
 
@@ -36,8 +45,7 @@ export const registerUser = async (username, email, password) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Register error:", error);
-    throw error;
+    throw handleApiError(error, "Registration failed");
   }
 };
 
@@ -49,24 +57,16 @@ export const searchNearbyPlaces = async (
 ) => {
   try {
     const params = {
-      latitude,
-      longitude,
+      latitude: parseFloat(latitude.toString().replace(",", ".")),
+      longitude: parseFloat(longitude.toString().replace(",", ".")),
       radius,
-      type
+      type,
     };
-
-    params.latitude = parseFloat(params.latitude.toString().replace(",", "."));
-    params.longitude = parseFloat(
-      params.longitude.toString().replace(",", ".")
-    );
-
-    params.type = type;
 
     const response = await api.get("/api/places/nearby", { params });
     return response.data;
   } catch (error) {
-    console.error("Error fetching nearby places:", error);
-    throw error;
+    throw handleApiError(error, "Failed to fetch nearby places");
   }
 };
 
@@ -75,8 +75,7 @@ export const getSavedPlaces = async () => {
     const response = await api.get("/api/saved-places");
     return response.data;
   } catch (error) {
-    console.error("Error fetching saved places:", error);
-    throw error;
+    throw handleApiError(error, "Failed to fetch saved places");
   }
 };
 
@@ -85,8 +84,7 @@ export const savePlace = async (place) => {
     const response = await api.post("/api/saved-places", place);
     return response.data;
   } catch (error) {
-    console.error("Error saving place:", error);
-    throw error;
+    throw handleApiError(error, "Failed to save place");
   }
 };
 
@@ -95,7 +93,6 @@ export const deletePlace = async (id) => {
     const response = await api.delete(`/api/saved-places/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting place:", error);
-    throw error;
+    throw handleApiError(error, "Failed to delete place");
   }
 };

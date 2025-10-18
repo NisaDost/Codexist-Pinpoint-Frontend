@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 const PLACE_TYPES = [
   { value: "", label: "All Types" },
   { value: "restaurant", label: "Restaurant" },

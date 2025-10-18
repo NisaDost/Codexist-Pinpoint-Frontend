@@ -25,25 +25,22 @@ const Login = () => {
     try {
       const response = await loginUser(username, password);
 
-      // Adjust based on your backend response structure
       const userData = response.user || { username };
       const token = response.token || response.accessToken;
 
       login(userData, token);
       navigate("/");
-    } catch (error) {
-      if (error.response) {
-        setError(
-          error.response.data.message || "Invalid username or password."
-        );
-      } else if (error.request) {
+    } catch (errorInfo) {
+      // errorInfo is now the structured error from handleApiError
+      if (errorInfo.status === 401) {
+        setError("Invalid username or password.");
+      } else if (errorInfo.status === 0) {
         setError(
           "Cannot connect to server. Make sure backend is running on port 8070."
         );
       } else {
-        setError("An error occurred. Please try again.");
+        setError(errorInfo.message || "Login failed. Please try again.");
       }
-      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }

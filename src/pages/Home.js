@@ -25,7 +25,6 @@ const Home = () => {
     lng: parseFloat(longitude) || 27.1428,
   };
 
-  // Fetch saved places when user logs in
   useEffect(() => {
     if (user) {
       fetchSavedPlaces();
@@ -39,8 +38,8 @@ const Home = () => {
       const savedPlaces = await getSavedPlaces();
       const placeIds = new Set(savedPlaces.map((place) => place.placeId));
       setSavedPlaceIds(placeIds);
-    } catch (error) {
-      console.error("Error fetching saved places:", error);
+    } catch (errorInfo) {
+      console.error("Error fetching saved places:", errorInfo);
     }
   };
 
@@ -68,15 +67,29 @@ const Home = () => {
     try {
       const data = await searchNearbyPlaces(latitude, longitude, radius, type);
       setPlaces(data.results || data || []);
-    } catch (error) {
-      if (error.request) {
+    } catch (errorInfo) {
+      if (errorInfo.status === 429) {
         alert(
-          "Cannot connect to backend. Make sure your server is running on port 8070."
+          "Rate Limit Exceeded\n\nYou've made too many requests. Please wait a moment and try again."
+        );
+      } else if (errorInfo.status === 400) {
+        alert(`Invalid Parameters\n\n${errorInfo.message}`);
+      } else if (errorInfo.status === 502) {
+        alert(
+          "External Service Error\n\nGoogle Places API is temporarily unavailable. Please try again later."
+        );
+      } else if (errorInfo.status === 0) {
+        alert(
+          "Connection Error\n\nCannot connect to backend. Make sure your server is running on port 8070."
         );
       } else {
-        alert("Error searching places. Please try again.");
+        alert(
+          `Error\n\n${
+            errorInfo.message || "Failed to search places. Please try again."
+          }`
+        );
       }
-      console.error(error);
+      console.error("Search error:", errorInfo);
     } finally {
       setLoading(false);
     }
@@ -89,7 +102,9 @@ const Home = () => {
 
   const handleSavePlace = async (place, selectedType) => {
     if (!user) {
-      alert("Please create an account to save places.");
+      alert(
+        "Authentication Required\n\nPlease create an account to save places."
+      );
       return;
     }
 
@@ -106,19 +121,34 @@ const Home = () => {
 
       await savePlace(placeData);
 
-      // Update saved places set
       setSavedPlaceIds((prev) => new Set([...prev, place.place_id]));
 
-      alert(`${place.name} saved successfully!`);
-    } catch (error) {
-      if (error.response) {
-        alert(error.response.data.message || "Error saving place.");
-      } else if (error.request) {
-        alert("Cannot connect to backend. Make sure your server is running.");
+      alert(`Success!\n\n${place.name} has been saved to your places.`);
+    } catch (errorInfo) {
+      if (errorInfo.status === 409) {
+        alert(`Already Saved\n\n${errorInfo.message}`);
+      } else if (errorInfo.status === 400 && errorInfo.validationErrors) {
+        alert(
+          `Validation Error\n\n${Object.values(errorInfo.validationErrors).join(
+            "\n"
+          )}`
+        );
+      } else if (errorInfo.status === 401) {
+        alert(
+          "Authentication Required\n\nYour session has expired. Please log in again."
+        );
+      } else if (errorInfo.status === 0) {
+        alert(
+          "Connection Error\n\nCannot connect to backend. Make sure your server is running."
+        );
       } else {
-        alert("Error saving place. Please try again.");
+        alert(
+          `Error\n\n${
+            errorInfo.message || "Failed to save place. Please try again."
+          }`
+        );
       }
-      console.error(error);
+      console.error("Save error:", errorInfo);
     }
   };
 
@@ -136,7 +166,6 @@ const Home = () => {
     }
 
     try {
-      // First, we need to find the saved place ID from our saved places
       const savedPlaces = await getSavedPlaces();
       const savedPlace = savedPlaces.find(
         (sp) => sp.placeId === place.place_id
@@ -145,22 +174,33 @@ const Home = () => {
       if (savedPlace) {
         await deletePlace(savedPlace.id);
 
-        // Update saved places set
         setSavedPlaceIds((prev) => {
           const newSet = new Set(prev);
           newSet.delete(place.place_id);
           return newSet;
         });
 
-        alert(`${place.name} removed from saved places!`);
+        alert(`Success!\n\n${place.name} has been removed from saved places.`);
       }
-    } catch (error) {
-      if (error.request) {
-        alert("Cannot connect to backend. Make sure your server is running.");
+    } catch (errorInfo) {
+      if (errorInfo.status === 404) {
+        alert(`Not Found\n\n${errorInfo.message}`);
+      } else if (errorInfo.status === 401) {
+        alert(
+          "Authentication Required\n\nYour session has expired. Please log in again."
+        );
+      } else if (errorInfo.status === 0) {
+        alert(
+          "Connection Error\n\nCannot connect to backend. Make sure your server is running."
+        );
       } else {
-        alert("Error deleting place. Please try again.");
+        alert(
+          `Error\n\n${
+            errorInfo.message || "Failed to delete place. Please try again."
+          }`
+        );
       }
-      console.error(error);
+      console.error("Delete error:", errorInfo);
     }
   };
 

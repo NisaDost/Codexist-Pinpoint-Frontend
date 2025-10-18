@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { registerUser } from "../services/api";
+import { formatValidationErrors } from "../utils/errorHandler";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -42,20 +43,22 @@ const Register = () => {
 
       register(userData, token);
       navigate("/");
-    } catch (error) {
-      if (error.response) {
-        setError(
-          error.response.data.message ||
-            "Registration failed. Username may already exist."
+    } catch (errorInfo) {
+      if (errorInfo.status === 409) {
+        setError(errorInfo.message);
+      } else if (errorInfo.status === 400 && errorInfo.validationErrors) {
+
+        const validationMsg = formatValidationErrors(
+          errorInfo.validationErrors
         );
-      } else if (error.request) {
+        setError(validationMsg);
+      } else if (errorInfo.status === 0) {
         setError(
           "Cannot connect to server. Make sure backend is running on port 8070."
         );
       } else {
-        setError("An error occurred. Please try again.");
+        setError(errorInfo.message || "Registration failed. Please try again.");
       }
-      console.error("Register error:", error);
     } finally {
       setLoading(false);
     }
@@ -64,7 +67,11 @@ const Register = () => {
   return (
     <div className="auth-container">
       <h2>Register</h2>
-      {error && <div className="error-message">{error}</div>}
+      {error && (
+        <div className="error-message" style={{ whiteSpace: "pre-line" }}>
+          {error}
+        </div>
+      )}
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Email</label>
