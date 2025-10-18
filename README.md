@@ -1,70 +1,196 @@
-# Getting Started with Create React App
+# Codexist Pinpoint App - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based web application for searching and saving nearby places using Google Maps API. Users can search for various types of places within a specified radius, view them on an interactive map, and save their favorites.
+
+## Live Demo
+
+The application is deployed at: https://codexist-pinpoint-nisadost-f7b7a218afdb.herokuapp.com/
+
+## Features
+
+- Interactive Google Maps integration
+- Search nearby places by type (restaurants, cafes, hospitals, etc.)
+- Customizable search radius
+- Real-time map updates with smooth animations
+- User authentication (register/login)
+- Save and manage favorite places
+- Visual distinction between saved and unsaved places on map
+- Responsive design
+
+## Technologies Used
+
+- React 18
+- React Router DOM (for routing)
+- Axios (for API requests)
+- Google Maps JavaScript API
+- @react-google-maps/api (for map integration)
+- CSS3 (for styling)
+
+## Prerequisites
+
+Before running this application, ensure you have:
+
+- Node.js (version 14 or higher)
+- npm (comes with Node.js)
+- A Google Maps API key
+- Backend API running (see backend README)
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+REACT_APP_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+REACT_APP_API_BASE_URL=http://localhost:8070
+```
+
+Replace `your_google_maps_api_key` with your actual Google Maps API key.
+
+For production, update `REACT_APP_API_BASE_URL` to your backend server URL.
+
+## Installation
+
+1. Clone the repository
+```bash
+git clone https://github.com/NisaDost/Codexist-Pinpoint-Frontend
+cd Codexist-Pinpoint-Frontend
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Create and configure the `.env` file as described above
+
+4. To set up your backend server, follow instructions on this repository: https://github.com/NisaDost/Codexist-Pinpoint
+
+5. Start the development server
+```bash
+npm start
+```
+
+The application will open at `http://localhost:3000`
 
 ## Available Scripts
 
-In the project directory, you can run:
-
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Runs the app in development mode at http://localhost:3000
 
 ### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in interactive watch mode
 
 ### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Builds the app for production to the `build` folder
 
 ### `npm run eject`
+Ejects from Create React App (one-way operation, use with caution)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+├── components/         # Reusable components
+│   ├── Map.js          # Google Maps component
+│   ├── Navbar.js       # Navigation bar
+│   ├── PlacesList.js   # List of places display
+│   └── SearchForm.js   # Search form component
+├── context/            # React Context for state management
+│   └── AuthContext.js  # Authentication context
+├── pages/              # Page components
+│   ├── Home.js         # Main search page
+│   ├── Login.js        # Login page
+│   ├── Register.js     # Registration page
+│   └── SavedPlaces.js  # Saved places page
+├── services/           # API services
+│   └── api.js          # API calls and configuration
+├── utils/              # Utility functions
+│   └── errorHandler.js # Error handling utilities
+├── App.js              # Main application component
+├── App.css             # Application styles
+├── index.js            # Application entry point
+└── index.css           # Global styles
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Usage
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Search for Places
 
-## Learn More
+1. Enter longitude and latitude coordinates (or click on the map)
+2. Set the search radius in meters
+3. Select a place type from the dropdown
+4. Click "Search Places"
+5. View results in the sidebar and as markers on the map
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Save Places
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Register for an account or login
+2. Search for places
+3. Click "Save Place" on any result
+4. Access saved places from the navigation menu
 
-### Code Splitting
+### Manage Saved Places
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. Navigate to "Saved Places" from the menu
+2. View all your saved places
+3. Delete places using the "Delete" button
 
-### Analyzing the Bundle Size
+## Map Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Red marker: Current search center
+- Blue markers: Unsaved places
+- Green markers: Saved places
+- Red circle: Search radius visualization
+- Smooth animations when changing location
 
-### Making a Progressive Web App
+## Security Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- JWT-based authentication
+- Secure password handling (hashed on backend)
+- HTTPS enforced in production
+- Input sanitization
+- Rate limiting on API requests
+- Auto-logout on authentication failure
 
-### Advanced Configuration
+## API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The frontend communicates with the backend through the following endpoints:
 
-### Deployment
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/places/nearby` - Search nearby places
+- `GET /api/saved-places` - Get user's saved places
+- `POST /api/saved-places` - Save a place
+- `DELETE /api/saved-places/:id` - Delete a saved place
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Error Handling
 
-### `npm run build` fails to minify
+The application provides user-friendly error messages for:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Connection errors
+- Authentication failures
+- Validation errors
+- Rate limit exceeded
+- Duplicate saves
+- Not found errors
+
+## Troubleshooting
+
+### Map not loading
+- Check if your Google Maps API key is valid
+- Ensure the API key has the necessary permissions
+- Verify the `.env` file is properly configured
+
+### Cannot connect to backend
+- Ensure the backend server is running
+- Check the `REACT_APP_API_BASE_URL` in `.env`
+- Verify CORS settings on the backend
+
+### Places not showing
+- Check browser console for errors
+- Verify your Google Maps API key has Places API enabled
+- Ensure you're within the rate limits
+
+## License
+
+This project is part of the Codexist Pinpoint Case Study by Nisa Dost.
