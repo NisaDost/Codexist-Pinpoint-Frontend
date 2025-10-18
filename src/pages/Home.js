@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import Map from "../components/Map";
 import SearchForm from "../components/SearchForm";
 import PlacesList from "../components/PlacesList";
-import { searchNearbyPlaces, savePlace, getSavedPlaces, deletePlace } from "../services/api";
+import {
+  searchNearbyPlaces,
+  savePlace,
+  getSavedPlaces,
+  deletePlace,
+} from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
@@ -32,7 +37,7 @@ const Home = () => {
   const fetchSavedPlaces = async () => {
     try {
       const savedPlaces = await getSavedPlaces();
-      const placeIds = new Set(savedPlaces.map(place => place.placeId));
+      const placeIds = new Set(savedPlaces.map((place) => place.placeId));
       setSavedPlaceIds(placeIds);
     } catch (error) {
       console.error("Error fetching saved places:", error);
@@ -100,10 +105,10 @@ const Home = () => {
       };
 
       await savePlace(placeData);
-      
+
       // Update saved places set
-      setSavedPlaceIds(prev => new Set([...prev, place.place_id]));
-      
+      setSavedPlaceIds((prev) => new Set([...prev, place.place_id]));
+
       alert(`${place.name} saved successfully!`);
     } catch (error) {
       if (error.response) {
@@ -122,25 +127,31 @@ const Home = () => {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to remove ${place.name} from saved places?`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to remove ${place.name} from saved places?`
+      )
+    ) {
       return;
     }
 
     try {
       // First, we need to find the saved place ID from our saved places
       const savedPlaces = await getSavedPlaces();
-      const savedPlace = savedPlaces.find(sp => sp.placeId === place.place_id);
-      
+      const savedPlace = savedPlaces.find(
+        (sp) => sp.placeId === place.place_id
+      );
+
       if (savedPlace) {
         await deletePlace(savedPlace.id);
-        
+
         // Update saved places set
-        setSavedPlaceIds(prev => {
+        setSavedPlaceIds((prev) => {
           const newSet = new Set(prev);
           newSet.delete(place.place_id);
           return newSet;
         });
-        
+
         alert(`${place.name} removed from saved places!`);
       }
     } catch (error) {
@@ -174,11 +185,12 @@ const Home = () => {
         />
       </div>
       <div className="map-container">
-        <Map 
-          center={center} 
-          onMapClick={handleMapClick} 
+        <Map
+          center={center}
+          onMapClick={handleMapClick}
           places={places}
           radius={parseInt(radius) || 1500}
+          savedPlaceIds={savedPlaceIds}
         />
       </div>
     </div>
