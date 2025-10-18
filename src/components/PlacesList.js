@@ -1,7 +1,13 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
 
-const PlacesList = ({ places, selectedType, onSavePlace }) => {
+const PlacesList = ({
+  places,
+  selectedType,
+  onSavePlace,
+  onDeletePlace,
+  savedPlaceIds,
+}) => {
   const { user } = useAuth();
 
   if (!places || places.length === 0) {
@@ -15,37 +21,54 @@ const PlacesList = ({ places, selectedType, onSavePlace }) => {
   return (
     <div className="places-list">
       <h3>Results ({places.length})</h3>
-      {places.map((place, index) => (
-        <div key={index} className="place-item">
-          <h4>{place.name}</h4>
-          <p>
-            <strong>Address:</strong>{" "}
-            {place.vicinity || place.formatted_address || "N/A"}
-          </p>
-          {place.rating && (
+      {places.map((place, index) => {
+        const isSaved = savedPlaceIds && savedPlaceIds.has(place.place_id);
+
+        return (
+          <div key={index} className="place-item">
+            <h4>{place.name}</h4>
             <p>
-              <strong>Rating:</strong> {place.rating} / 5
+              <strong>Address:</strong>{" "}
+              {place.vicinity || place.formatted_address || "N/A"}
             </p>
-          )}
-          {place.types && place.types.length > 0 && (
+            {place.rating && (
+              <p>
+                <strong>Rating:</strong> {place.rating} / 5
+              </p>
+            )}
+            {place.types && place.types.length > 0 && (
+              <p>
+                <strong>Type:</strong>{" "}
+                {selectedType ? selectedType : place.types[0]}
+              </p>
+            )}
             <p>
-              <strong>Type:</strong> {selectedType? selectedType : place.types[0]}
+              <strong>Location:</strong>{" "}
+              {place.geometry.location.lat.toFixed(6)},{" "}
+              {place.geometry.location.lng.toFixed(6)}
             </p>
-          )}
-          <p>
-            <strong>Location:</strong> {place.geometry.location.lat.toFixed(6)},{" "}
-            {place.geometry.location.lng.toFixed(6)}
-          </p>
-          {user && (
-            <button
-              className="save-button"
-              onClick={() => onSavePlace(place, selectedType)}
-            >
-              Save Place
-            </button>
-          )}
-        </div>
-      ))}
+            {user && (
+              <>
+                {isSaved ? (
+                  <button
+                    className="delete-button"
+                    onClick={() => onDeletePlace(place)}
+                  >
+                    Remove from Saved
+                  </button>
+                ) : (
+                  <button
+                    className="save-button"
+                    onClick={() => onSavePlace(place, selectedType)}
+                  >
+                    Save Place
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

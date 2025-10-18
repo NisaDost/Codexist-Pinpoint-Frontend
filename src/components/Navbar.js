@@ -13,7 +13,14 @@ const Navbar = () => {
 
   return (
     <div className="navbar">
-      <h1>Codexist Pinpoint</h1>
+      <div style={{display: "flex", alignItems: "center", gap: ".8rem"}} >
+        <img
+          src="/logo.png"
+          alt="Logo"
+          style={{ height: "40px" }}
+        />
+        <h1>Codexist Pinpoint App</h1>
+      </div>
       <nav>
         <Link to="/">Home</Link>
         {user ? (

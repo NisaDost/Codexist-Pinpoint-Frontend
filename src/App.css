@@ -153,6 +153,12 @@ body {
   margin-bottom: 1rem;
   border-radius: 4px;
   border-left: 4px solid #3498db;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.place-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .place-item h4 {
@@ -175,11 +181,16 @@ body {
   cursor: pointer;
   margin-top: 0.5rem;
   font-size: 0.9rem;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .save-button:hover {
   background-color: #229954;
+  transform: scale(1.05);
+}
+
+.save-button:active {
+  transform: scale(0.95);
 }
 
 .no-results {
@@ -272,6 +283,12 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-left: 4px solid #27ae60;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.saved-place-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .saved-place-card h3 {
@@ -294,9 +311,50 @@ body {
   cursor: pointer;
   margin-top: 1rem;
   font-size: 0.9rem;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .delete-button:hover {
   background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.delete-button:active {
+  transform: scale(0.95);
+}
+
+/* Map marker animations */
+@keyframes markerDrop {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+
+  70% {
+    transform: translateY(10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

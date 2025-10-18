@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Map from "../components/Map";
 import SearchForm from "../components/SearchForm";
 import PlacesList from "../components/PlacesList";
-import { searchNearbyPlaces, savePlace } from "../services/api";
+import { searchNearbyPlaces, savePlace, getSavedPlaces, deletePlace } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
@@ -13,10 +13,30 @@ const Home = () => {
   const [type, setType] = useState("");
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [savedPlaceIds, setSavedPlaceIds] = useState(new Set());
 
   const center = {
     lat: parseFloat(latitude) || 38.4237,
     lng: parseFloat(longitude) || 27.1428,
+  };
+
+  // Fetch saved places when user logs in
+  useEffect(() => {
+    if (user) {
+      fetchSavedPlaces();
+    } else {
+      setSavedPlaceIds(new Set());
+    }
+  }, [user]);
+
+  const fetchSavedPlaces = async () => {
+    try {
+      const savedPlaces = await getSavedPlaces();
+      const placeIds = new Set(savedPlaces.map(place => place.placeId));
+      setSavedPlaceIds(placeIds);
+    } catch (error) {
+      console.error("Error fetching saved places:", error);
+    }
   };
 
   const handleInputChange = (field, value) => {
@@ -80,6 +100,10 @@ const Home = () => {
       };
 
       await savePlace(placeData);
+      
+      // Update saved places set
+      setSavedPlaceIds(prev => new Set([...prev, place.place_id]));
+      
       alert(`${place.name} saved successfully!`);
     } catch (error) {
       if (error.response) {
@@ -88,6 +112,42 @@ const Home = () => {
         alert("Cannot connect to backend. Make sure your server is running.");
       } else {
         alert("Error saving place. Please try again.");
+      }
+      console.error(error);
+    }
+  };
+
+  const handleDeletePlace = async (place) => {
+    if (!user) {
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to remove ${place.name} from saved places?`)) {
+      return;
+    }
+
+    try {
+      // First, we need to find the saved place ID from our saved places
+      const savedPlaces = await getSavedPlaces();
+      const savedPlace = savedPlaces.find(sp => sp.placeId === place.place_id);
+      
+      if (savedPlace) {
+        await deletePlace(savedPlace.id);
+        
+        // Update saved places set
+        setSavedPlaceIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(place.place_id);
+          return newSet;
+        });
+        
+        alert(`${place.name} removed from saved places!`);
+      }
+    } catch (error) {
+      if (error.request) {
+        alert("Cannot connect to backend. Make sure your server is running.");
+      } else {
+        alert("Error deleting place. Please try again.");
       }
       console.error(error);
     }
@@ -109,10 +169,17 @@ const Home = () => {
           places={places}
           selectedType={type}
           onSavePlace={handleSavePlace}
+          onDeletePlace={handleDeletePlace}
+          savedPlaceIds={savedPlaceIds}
         />
       </div>
       <div className="map-container">
-        <Map center={center} onMapClick={handleMapClick} places={places} />
+        <Map 
+          center={center} 
+          onMapClick={handleMapClick} 
+          places={places}
+          radius={parseInt(radius) || 1500}
+        />
       </div>
     </div>
   );
