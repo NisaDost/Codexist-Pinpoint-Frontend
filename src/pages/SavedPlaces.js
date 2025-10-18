@@ -4,20 +4,22 @@ import { useAuth } from "../context/AuthContext";
 import { getSavedPlaces, deletePlace } from "../services/api";
 
 const SavedPlaces = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [savedPlaces, setSavedPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
       navigate("/login");
       return;
     }
 
     fetchSavedPlaces();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const fetchSavedPlaces = async () => {
     setLoading(true);
@@ -55,6 +57,15 @@ const SavedPlaces = () => {
       }
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="saved-places-container">
+        <h2>My Saved Places</h2>
+        <div className="no-results">Loading...</div>
+      </div>
+    );
+  }
 
   if (!user) {
     return null;
