@@ -52,14 +52,15 @@ export const searchNearbyPlaces = async (
       latitude,
       longitude,
       radius,
+      type
     };
 
     params.latitude = parseFloat(params.latitude.toString().replace(",", "."));
-    params.longitude = parseFloat(params.longitude.toString().replace(",", "."));
+    params.longitude = parseFloat(
+      params.longitude.toString().replace(",", ".")
+    );
 
-    if (type) {
-      params.type = type;
-    }
+    params.type = type;
 
     const response = await api.get("/api/places/nearby", { params });
     return response.data;

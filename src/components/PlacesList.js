@@ -29,7 +29,7 @@ const PlacesList = ({ places, selectedType, onSavePlace }) => {
           )}
           {place.types && place.types.length > 0 && (
             <p>
-              <strong>Type:</strong> {selectedType}
+              <strong>Type:</strong> {selectedType? selectedType : place.types[0]}
             </p>
           )}
           <p>
