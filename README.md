@@ -6,6 +6,10 @@ A React-based web application for searching and saving nearby places using Googl
 
 The application is deployed at: https://codexist-pinpoint-nisadost-f7b7a218afdb.herokuapp.com/
 
+## Project Visual
+![alt text](public/visual.png "Codexist-Pinpoint")
+
+
 ## Features
 
 - Interactive Google Maps integration
