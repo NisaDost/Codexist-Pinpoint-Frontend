@@ -108,7 +108,7 @@ const Map = ({ center, onMapClick, places, radius, savedPlaceIds = new Set() }) 
   }, []);
 
   return (
-    <LoadScript googleMapsApiKey={process.env.GOOGLE_MAPS_API_KEY}>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={currentCenter}
@@ -157,7 +157,7 @@ const Map = ({ center, onMapClick, places, radius, savedPlaceIds = new Set() }) 
         {places &&
           places.map((place, index) => {
             const isSaved = savedPlaceIds.has(place.place_id);
-            
+
             return (
               <Marker
                 key={place.place_id || index}
@@ -167,9 +167,9 @@ const Map = ({ center, onMapClick, places, radius, savedPlaceIds = new Set() }) 
                 }}
                 title={place.name}
                 icon={{
-                  url: isSaved 
-                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png"  // Green for saved
-                    : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",   // Blue for unsaved
+                  url: isSaved
+                    ? "http://maps.google.com/mapfiles/ms/icons/green-dot.png" // Green for saved
+                    : "http://maps.google.com/mapfiles/ms/icons/blue-dot.png", // Blue for unsaved
                 }}
                 zIndex={isSaved ? 100 : 50} // Saved places have higher z-index
               />
